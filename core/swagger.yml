@@ -1,0 +1,267 @@
+consumes:
+- application/github.com.obarbier.custom-app.core.v1+json
+info:
+  description: key/user management and authorization server
+  title: core
+  version: 1.0.0
+produces:
+- application/github.com.obarbier.custom-app.core.v1+json
+securityDefinitions:
+  basicAuth:
+    type: basic
+schemes:
+- http
+basePath: /api/v1
+swagger: "2.0"
+
+
+security:
+  - basicAuth: []
+
+paths:
+  /user/all:
+    get:
+      summary: Returns a list of users.
+      description: allow to query all users in the system
+      tags:
+        - get_all
+      produces:
+        - application/github.com.obarbier.custom-app.core.v1+json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ArrayOfUser"
+        401:
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+
+  /user:
+    post:
+      summary: create a user
+      tags:
+        - create_user
+      parameters:
+        - in: body
+          name: user
+          schema:
+            $ref: '#/definitions/CreateUserRequest'
+      responses:
+        201:
+          description: CREATED
+          schema:
+            $ref: "#/definitions/UserResponse"
+        401:
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        400:
+          description: request body missing.
+          schema:
+            $ref: "#/definitions/error"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+    put:
+      summary: update User
+      tags:
+        - update_user
+      parameters:
+        - in: body
+          name: user
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        200:
+          description: OK
+        400:
+          description: bad request body
+          schema:
+            $ref: "#/definitions/UserResponse"
+        401:
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        404:
+          description: A user with the specified ID was not found.
+          schema:
+            $ref: "#/definitions/error"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+
+
+  /user/{userId}:
+    get:
+      summary: Returns a user by ID.
+      tags:
+        - get_user_by_id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          type: integer
+          minimum: 1
+          description: id of the user
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/UserResponse"
+        400:
+          description: The specified user ID is invalid (e.g. not a number).
+          schema:
+            $ref: "#/definitions/error"
+        401:
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        404:
+          description: A user with the specified ID was not found.
+          schema:
+            $ref: "#/definitions/error"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+    delete:
+      summary: delete user by id
+      tags:
+        - delete_user_by_id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          type: integer
+          minimum: 1
+          description: id of the user
+      responses:
+        200:
+          description: OK
+        400:
+          description: The specified user ID is invalid (e.g. not a number).
+          schema:
+            $ref: "#/definitions/error"
+        401:
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        404:
+          description: A user with the specified ID was not found.
+          schema:
+            $ref: "#/definitions/error"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+    put:
+      summary: update User by id
+      tags:
+        - update_user_by_id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          type: integer
+          minimum: 1
+          description: id of the user
+        - in: body
+          name: user
+          schema:
+            $ref: '#/definitions/CreateUserRequest'
+      responses:
+        200:
+          description: OK
+        400:
+          description: bad request body
+          schema:
+            $ref: "#/definitions/UserResponse"
+        401:
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        404:
+          description: A user with the specified ID was not found.
+          schema:
+            $ref: "#/definitions/error"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+
+
+definitions:
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+      user_name:
+        type: string
+      password:
+        type: string
+    required:
+      - user_name
+
+  CreateUserRequest:
+    type: object
+    properties:
+      user_name:
+        type: string
+      password:
+        type: string
+    required:
+      - user_name
+
+  UserResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+      user_name:
+        type: string
+    required:
+      - user_name
+
+  ArrayOfUser:
+    type: array
+    items:
+      $ref: "#/definitions/UserResponse"
+
+  error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
+      fields:
+        type: string
+    required:
+      - message
+
+  policy:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        capabilities:
+          type: array
+          items:
+            $ref: "#/definitions/capability"
+
+  capability:
+    type: string
+    enum:
+      - create
+      - read
+      - update
+      - delete

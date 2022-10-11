@@ -1,0 +1,57 @@
+core :
+	- Definition:
+		key and user management + authorization server
+	- Technology stack
+		basic authentication 
+		swagger v2 specs
+	- requirements
+		authentication/authorization (V1-Done) 
+		secure communication between services
+		support links/HATEOAS
+		80%  hemetic test coverage
+		enable https 
+		logging framework
+		key wrapping
+	-API
+		/users
+		/key
+sign-data
+	- Definition:
+		sign data using key from different place (kms , db, yubikey, etc)
+	- Technology stack
+		api key authentication
+		nats publisher
+		swagger v2 specs
+	- requirements
+		authentication/authorization (hmac based authentications)
+		secure communication between services
+		support links/HATEOAS
+		80% hemetic test coverage
+		enable https
+		logging framework
+		rate limit sign request (quotas implementation)
+	-API	
+		/sign
+transparency
+	- Definition:
+		signature transparency logs
+	- Technology stack
+		nats subscriber
+		trillian backend
+		grpc
+		logging framework
+		
+
+===== generator =====
+swagger init spec \
+  --title "core" \
+  --description "key/user management and authorization server" \
+  --version 1.0.0 \
+  --scheme http \
+  --consumes application/github.com.obarbier.custom-app.core.v1+json \
+  --produces application/github.com.obarbier.custom-app.core.v1+json
+
+TODO: user api
+	1) write swagger file 
+	2) how to include hateoas
+
