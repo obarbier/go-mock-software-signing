@@ -11,7 +11,7 @@ import (
 	"github.com/obarbier/custom-app/core/pkg/restapi/operations/update_user"
 	"github.com/obarbier/custom-app/core/pkg/restapi/operations/update_user_by_id"
 	"github.com/obarbier/custom-app/core/pkg/storage"
-	"github.com/obarbier/custom-app/core/pkg/storage/memory"
+	mysql2 "github.com/obarbier/custom-app/core/pkg/storage/mysql"
 	"log"
 )
 
@@ -20,7 +20,16 @@ type Principal struct {
 }
 
 func NewAPI(api *operations.CoreAPI) error {
-	us = storage.NewUserService(memory.NewMemoryStorage())
+	cfg := []mysql2.Configure{
+		mysql2.SetDBAddress("0.0.0.0:3306"),
+		mysql2.SetDBName("mydb"),
+		mysql2.SetCredentials("root", "rootpassword"),
+	}
+	sqlStorage, err := mysql2.NewMysqlStorage(cfg...)
+	if err != nil {
+		l.Fatalf("Error: %s", err)
+	}
+	us = storage.NewUserService(sqlStorage)
 	l = log.Default()
 	// Applies when the Authorization header is set with the Basic scheme
 	api.BasicAuthAuth = func(user string, pass string) (interface{}, error) {

@@ -10,11 +10,21 @@ import (
 var (
 	maxId int64
 	us    map[int64]*models.User
+	upm   map[int64]*models.Policy
 )
 var NotFoundError = fmt.Errorf("no user was found")
 
 type UserStore struct {
 	mx sync.RWMutex
+}
+
+func (m *UserStore) CreatePolicy(i int64, policy *models.Policy) error {
+	upm[i] = policy
+	return nil
+}
+
+func (m *UserStore) GetPolicy(i int64) (*models.Policy, error) {
+	return upm[i], nil
 }
 
 func (m *UserStore) FindByUserName(username string) (*models.User, error) {
@@ -80,6 +90,7 @@ var _ storage.UserStorage = &UserStore{}
 func NewMemoryStorage() *UserStore {
 	maxId = 1
 	us = make(map[int64]*models.User)
+	upm = make(map[int64]*models.Policy)
 	return &UserStore{
 		sync.RWMutex{},
 	}

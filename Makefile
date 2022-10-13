@@ -27,7 +27,18 @@ core-swagger-validate:
 
 .PHONY: generate-ssl-certificate
 generate-ssl-certificate:
-	
+	- echo "generate ssl certs"
+
+.PHONY: core-start-server
+core-start-server:
+	- cd core;\
+	  $(GO)  run ./pkg/cmd/core-server/main.go \
+	  --port 8080
+
+.PHONY: core-format-project
+core-format-project:
+	- cd core;\
+	  $(GO)  fmt ./
 
 .PHONY: all
 all: $(TARGET)

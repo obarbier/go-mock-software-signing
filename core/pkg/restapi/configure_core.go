@@ -4,6 +4,7 @@ package restapi
 
 import (
 	"crypto/tls"
+	api2 "github.com/obarbier/custom-app/core/pkg/api"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -42,7 +43,7 @@ func configureAPI(api *operations.CoreAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
-
+	api2.NewAPI(api)
 	// Applies when the Authorization header is set with the Basic scheme
 	if api.BasicAuthAuth == nil {
 		api.BasicAuthAuth = func(user string, pass string) (interface{}, error) {

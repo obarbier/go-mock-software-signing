@@ -14,14 +14,10 @@ type UserStorage interface {
 	UpdateUser(*models.User) error
 	DeleteUser(int64) error
 	FindByUserName(username string) (*models.User, error)
-}
 
-// TODO(obarbier): implement a storage layer for policy. Ideally this needs to be able to back up the tree
-type PolicyStorage interface {
-	CreatePolicy(models.Policy) (models.Policy, error)
-	UpdatePolicy(models.Policy) (models.Policy, error)
-	DeletePolicy(policy models.Policy) error
-	GetPolicy(id int64) (models.Policy, error)
+	// TODO(obarbier): implement a storage layer for policy. Ideally this needs to be able to back up the tree
+	CreatePolicy(int64, *models.Policy) error
+	GetPolicy(int64) (*models.Policy, error)
 }
 
 func HashPassword(password string) (string, error) {
@@ -39,8 +35,8 @@ type UserService struct {
 	// TODO(obarbier): consider encapsulating logging functionality
 	logger *log.Logger
 	impl   UserStorage
-	// upm is the user policy mapping, mapping user id with policy node
-	upm map[int64]*node
+	// policyCache is the user policy mapping, mapping user id with policy node
+	policyCache map[int64]*node
 }
 
 func (u *UserService) FindByUserName(username string) (*models.User, error) {
@@ -114,48 +110,40 @@ func (u *UserService) DeleteUser(i int64) error {
 }
 
 func (u *UserService) CreateOrUpdatePolicy(user *models.User, policy *models.Policy) error {
-	// check if upm has policy set for user
-	n, ok := u.upm[user.ID]
-	if !ok {
-		// create new policy
-		newN := newNode()
-
-		for path, acl := range *policy {
-			newN.insert(path, acl)
-		}
-		u.upm[user.ID] = newN
-		return nil
-	}
-
-	// update policy
-	// TODO(obarbier): check policy for path exist and create or update
-	for path, acl := range *policy {
-		n.insert(path, acl)
-	}
-
+	u.impl.CreatePolicy(user.ID, policy)
 	return nil
 }
 
-func (u *UserService) GetPolicy(user *models.User, path string) (models.PolicyAnon, error) {
-	n, ok := u.upm[user.ID]
+func (u *UserService) Authorize(user *models.User, path, httpMethod string) (bool, error) {
+	log.Println("trying to retrieve policy from cache")
+	n, ok := u.policyCache[user.ID] // TODO:(obarbier): cache TTL
+	// TODO(obarbier): a goroutine should be implemented to update policyCache regularly based on TTL and or Schedule
 	if !ok {
-		return models.PolicyAnon{}, fmt.Errorf("policy not set for user" /* TODO(obarbier): better error */)
+		log.Println("cache missed. getting data from db")
+		p, err := u.impl.GetPolicy(user.ID)
+		if err != nil {
+			return false, err
+		}
+		if p == nil {
+			return false, fmt.Errorf("policy not set for user" /* TODO(obarbier): better error */)
+		}
+		n = newPolicy(p)
+		log.Println("updating policy cache")
+		u.policyCache[user.ID] = n
 	}
 	p := n.getPolicy(path)
 	if p == nil {
-		return models.PolicyAnon{}, fmt.Errorf("policy not defined for path" /* TODO(obarbier): better error */)
+		return false, fmt.Errorf("policy not defined for path" /* TODO(obarbier): better error */)
 	}
+	return p.capability&HTTPMethodMatch[httpMethod] != 0, nil
 
-	return p.acls, nil
 }
 
 // NewUserService create a new UserService
 func NewUserService(impl UserStorage) *UserService {
 	return &UserService{
-		logger: log.Default(),
-		impl:   impl,
-		upm:    make(map[int64]*node),
+		logger:      log.Default(),
+		impl:        impl,
+		policyCache: make(map[int64]*node),
 	}
 }
-
-var _ UserStorage = &UserService{}
