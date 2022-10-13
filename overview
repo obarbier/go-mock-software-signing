@@ -2,15 +2,31 @@ core :
 	- Definition:
 		key and user management + authorization server
 	- Technology stack
-		basic authentication 
+		basic authentication
+		    user management will follow basic authentication
+		token authentication:
+		    key management will be done using token based authentication
 		swagger v2 specs
 	- requirements
-		authentication/authorization (V1-Done) 
+		authentication/authorization (V1-Done)
+		    - ACL based authorization (see policy acl)
 		secure communication between services
+		    - implementation should follow security best practive
+		        * input validation
+		        * https encryption
+		        * database security
+		        * etc.
 		support links/HATEOAS
-		80%  hemetic test coverage
-		enable https 
+		    * application should return link to get additional information about  resources
+		80%  hermetic test coverage
+		    * this include database test
+		    * this include http server test
+		    * this include functional test
+		    * fuzz testing
 		logging framework
+		    * ability to configure log output + set log level
+		    * develop best practice for logging
+		        * https://www.dataset.com/blog/the-10-commandments-of-logging/
 		key wrapping
 	-API
 		/users
@@ -26,7 +42,7 @@ sign-data
 		authentication/authorization (hmac based authentications)
 		secure communication between services
 		support links/HATEOAS
-		80% hemetic test coverage
+		80% hermetic test coverage
 		enable https
 		logging framework
 		rate limit sign request (quotas implementation)
