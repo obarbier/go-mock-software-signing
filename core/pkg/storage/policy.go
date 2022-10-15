@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/obarbier/custom-app/core/pkg/log_utils"
 	"github.com/obarbier/custom-app/core/pkg/models"
 )
 
@@ -23,8 +24,7 @@ func UnmarshalPolicy(data []byte) *models.Policy {
 	var v models.Policy
 	err := json.Unmarshal(data, &v)
 	if err != nil {
-		//TODO(obarbier): add logger
-		fmt.Printf("ERROR: %s", err)
+		log_utils.Error(err)
 	}
 	return &v
 }

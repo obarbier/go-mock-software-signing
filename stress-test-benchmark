@@ -44,7 +44,7 @@ Options are:
     -d              Do not show percentiles served table.
     -S              Do not show confidence estimators and warnings.
     -q              Do not show progress when doing more than 150 requests
-    -l              Accept variable document length (use this for dynamic pages)
+    -nl              Accept variable document length (use this for dynamic pages)
     -g filename     Output collected data to gnuplot format file.
     -e filename     Output CSV file with percentages served
     -r              Don't exit on socket receive errors.

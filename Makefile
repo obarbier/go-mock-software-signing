@@ -32,6 +32,8 @@ generate-ssl-certificate:
 .PHONY: core-start-server
 core-start-server:
 	- cd core;\
+	  export MYAPP_LOG_LEVEL=TRACE; \
+	  export MYAPP_LOG_FILE_OUTPUT=true; \
 	  $(GO)  run ./pkg/cmd/core-server/main.go \
 	  --port 8080
 

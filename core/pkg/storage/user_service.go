@@ -2,9 +2,9 @@ package storage
 
 import (
 	"fmt"
+	"github.com/obarbier/custom-app/core/pkg/log_utils"
 	"github.com/obarbier/custom-app/core/pkg/models"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 )
 
 type UserStorage interface {
@@ -32,80 +32,78 @@ func CheckPasswordHash(password, hash string) bool {
 
 // UserService is a wrapper to storage layer it allow storage type to exist without worry of business logic
 type UserService struct {
-	// TODO(obarbier): consider encapsulating logging functionality
-	logger *log.Logger
-	impl   UserStorage
+	impl UserStorage
 	// policyCache is the user policy mapping, mapping user id with policy node
 	policyCache map[int64]*node
 }
 
 func (u *UserService) FindByUserName(username string) (*models.User, error) {
-	u.logger.Println("started find by username")
+	log_utils.Info("started find by username")
 	entity, err := u.impl.FindByUserName(username)
 	if err != nil {
-		u.logger.Println("failed to retrieve user")
+		log_utils.Error("failed to retrieve user")
 		return nil, err
 	}
-	u.logger.Println("successfully retrieved user")
+	log_utils.Info("successfully retrieved user")
 	return entity, nil
 }
 
 func (u *UserService) FindAllUser() ([]*models.User, error) {
-	u.logger.Println("started getting all user")
+	log_utils.Info("started getting all user")
 	entity, err := u.impl.FindAllUser()
 	if err != nil {
-		u.logger.Println("failed to create a user")
+		log_utils.Error("failed to create a user")
 		return nil, err
 	}
-	u.logger.Println("successfully created a user")
+	log_utils.Info("successfully created a user")
 	return entity, nil
 }
 
 func (u *UserService) CreateUser(user *models.User) (*models.User, error) {
-	u.logger.Println("started creating a user")
+	log_utils.Info("started creating a user")
 	pwdHash, _ := HashPassword(user.Password)
 	user.Password = pwdHash
 	entity, err := u.impl.CreateUser(user)
 	if err != nil {
-		u.logger.Println("failed to create a user")
+		log_utils.Error("failed to create a user")
 		return nil, err
 	}
-	u.logger.Println("successfully created a user")
+	log_utils.Info("successfully created a user")
 	return entity, nil
 
 }
 
 func (u *UserService) ReadUser(i int64) (*models.User, error) {
-	u.logger.Println("started reading user from storage layer")
+	log_utils.Info("started reading user from storage layer")
 	entity, err := u.impl.ReadUser(i)
 	if err != nil {
-		u.logger.Println("failed to retrieve a user")
+		log_utils.Error("failed to retrieve a user")
 		return nil, err
 	}
-	u.logger.Println("successfully retrieved user from storage layer")
+	log_utils.Info("successfully retrieved user from storage layer")
 	return entity, nil
 }
 
 func (u *UserService) UpdateUser(user *models.User) error {
-	u.logger.Println("updating a user")
+	log_utils.Info("updating a user")
 	pwdHash, _ := HashPassword(user.Password)
 	user.Password = pwdHash
 	err := u.impl.UpdateUser(user)
 	if err != nil {
-		u.logger.Println("failed to update a user")
+		log_utils.Error("failed to update a user")
 		return err
 	}
-	u.logger.Println("successfully updated a user")
+	log_utils.Info("successfully updated a user")
 	return nil
 }
 
 func (u *UserService) DeleteUser(i int64) error {
-	u.logger.Println("deleting a user")
+	log_utils.Info("deleting a user")
 	if err := u.impl.DeleteUser(i); err != nil {
-		u.logger.Println("failed to delete a user")
+		log_utils.Error("failed to delete a user")
 		return err
 	}
-	u.logger.Println("successfully deleted a user")
+	log_utils.Info("successfully deleted a user")
 	return nil
 }
 
@@ -115,11 +113,11 @@ func (u *UserService) CreateOrUpdatePolicy(user *models.User, policy *models.Pol
 }
 
 func (u *UserService) Authorize(user *models.User, path, httpMethod string) (bool, error) {
-	log.Println("trying to retrieve policy from cache")
+	log_utils.Info("trying to retrieve policy from cache")
 	n, ok := u.policyCache[user.ID] // TODO:(obarbier): cache TTL
 	// TODO(obarbier): a goroutine should be implemented to update policyCache regularly based on TTL and or Schedule
 	if !ok {
-		log.Println("cache missed. getting data from db")
+		log_utils.Info("cache missed. getting data from db")
 		p, err := u.impl.GetPolicy(user.ID)
 		if err != nil {
 			return false, err
@@ -128,7 +126,7 @@ func (u *UserService) Authorize(user *models.User, path, httpMethod string) (boo
 			return false, fmt.Errorf("policy not set for user" /* TODO(obarbier): better error */)
 		}
 		n = newPolicy(p)
-		log.Println("updating policy cache")
+		log_utils.Info("updating policy cache")
 		u.policyCache[user.ID] = n
 	}
 	p := n.getPolicy(path)
@@ -142,7 +140,6 @@ func (u *UserService) Authorize(user *models.User, path, httpMethod string) (boo
 // NewUserService create a new UserService
 func NewUserService(impl UserStorage) *UserService {
 	return &UserService{
-		logger:      log.Default(),
 		impl:        impl,
 		policyCache: make(map[int64]*node),
 	}

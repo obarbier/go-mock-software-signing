@@ -3,9 +3,9 @@ package mysql
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/obarbier/custom-app/core/pkg/log_utils"
 	"github.com/obarbier/custom-app/core/pkg/models"
 	"github.com/obarbier/custom-app/core/pkg/storage"
-	"log"
 )
 
 import (
@@ -89,7 +89,7 @@ func NewMysqlStorage(cfg ...Configure) (*UserStorage, error) {
 		return nil, err2
 	}
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", c.username, c.password, c.dbTcpAddress, c.dbName)
-	log.Println(dataSourceName)
+	log_utils.Debug(dataSourceName)
 	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
 		panic(err) // TODO(obarbier): proper error handling instead of panic in your app
@@ -145,7 +145,7 @@ func (u *UserStorage) CreateUser(user *models.User) (*models.User, error) {
 	}
 	lastId, err := res.LastInsertId()
 	if err != nil {
-		log.Fatal(err) // TODO(obarbier): error handling
+		log_utils.Error(err) // TODO(obarbier): error handling
 	}
 
 	user.ID = lastId
@@ -155,28 +155,28 @@ func (u *UserStorage) CreateUser(user *models.User) (*models.User, error) {
 func (u *UserStorage) ReadUser(i int64) (*models.User, error) {
 	stmt, err := u.db.Prepare(SelectSingleUserByUserID)
 	if err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 	}
 	defer stmt.Close()
 	p := new(models.User)
 	err = stmt.QueryRow(i).Scan(&p.ID, &p.UserName, &p.Password)
 	if err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 	}
-	log.Printf("%+v", *p)
+	log_utils.Debug(fmt.Sprintf("%+v", *p))
 	return p, nil
 }
 
 func (u *UserStorage) FindAllUser() ([]*models.User, error) {
 	stmt, err := u.db.Prepare(SelectAllUser)
 	if err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 		return nil, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query()
 	if err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -185,13 +185,13 @@ func (u *UserStorage) FindAllUser() ([]*models.User, error) {
 		p := new(models.User)
 		err = rows.Scan(&p.ID, &p.UserName, &p.Password)
 		if err != nil {
-			log.Fatal(err)
+			log_utils.Error(err)
 			return nil, err
 		}
 		allUsers = append(allUsers, p)
 	}
 	if err = rows.Err(); err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 		return nil, err
 	}
 	return allUsers, nil
@@ -228,15 +228,15 @@ func (u *UserStorage) DeleteUser(i int64) error {
 func (u *UserStorage) FindByUserName(username string) (*models.User, error) {
 	stmt, err := u.db.Prepare(SelectSingleUserByUserName)
 	if err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 	}
 	defer stmt.Close()
 	p := new(models.User)
 	err = stmt.QueryRow(username).Scan(&p.ID, &p.UserName, &p.Password)
 	if err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 	}
-	log.Printf("%+v", *p)
+	log_utils.Debug(fmt.Sprintf("%+v", *p))
 	return p, nil
 }
 
@@ -249,7 +249,7 @@ func (u *UserStorage) CreatePolicy(i int64, policy *models.Policy) error {
 	defer stmtIns.Close() // TODO(obarbier): Close the statement when we leave main() / the program terminates
 	b, err := json.Marshal(policy)
 	if err != nil {
-		log.Fatalf("%s", err)
+		log_utils.Error("%s", err)
 		return err
 	}
 	_, err = stmtIns.Exec(b, i)
@@ -265,17 +265,17 @@ func (u *UserStorage) CreatePolicy(i int64, policy *models.Policy) error {
 func (u *UserStorage) GetPolicy(i int64) (*models.Policy, error) {
 	stmt, err := u.db.Prepare(SelectPolicyByUserID)
 	if err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 	}
 	defer stmt.Close()
 	p := new(models.Policy)
 	var policyjson []byte
 	err = stmt.QueryRow(i).Scan(&policyjson)
 	if err != nil {
-		log.Fatal(err)
+		log_utils.Error(err)
 	}
 	json.Unmarshal(policyjson, p)
-	log.Printf("%+v", *p)
+	log_utils.Debug(fmt.Sprintf("%+v", *p))
 	return p, nil
 }
 

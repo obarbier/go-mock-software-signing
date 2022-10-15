@@ -1,8 +1,8 @@
 package api
 
 import (
-	"fmt"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/obarbier/custom-app/core/pkg/log_utils"
 	"github.com/obarbier/custom-app/core/pkg/models"
 	"github.com/obarbier/custom-app/core/pkg/restapi/operations/create_user"
 	"github.com/obarbier/custom-app/core/pkg/restapi/operations/delete_user_by_id"
@@ -18,13 +18,13 @@ var us *storage.UserService
 var l *log.Logger
 
 func DeleteV1UserUserIDHandlerFunc(params delete_user_by_id.DeleteUserUserIDParams, principal interface{}) middleware.Responder {
-	l.Println(fmt.Sprintf("handling authorization for delete user %s", principal))
+	log_utils.Trace("handling delete a user", principal)
 	_ = us.DeleteUser(params.UserID)
 	return delete_user_by_id.NewDeleteUserUserIDOK()
 }
 
 func GetV1UserAllHandlerFunc(_ get_all.GetUserAllParams, principal interface{}) middleware.Responder {
-	l.Println(fmt.Sprintf("handling authorization for getting all user %s", principal))
+	log_utils.Trace("handling getting all user", principal)
 	entities, _ := us.FindAllUser()
 
 	// TODO(obarbier): greedy implementation
@@ -44,7 +44,7 @@ func GetV1UserAllHandlerFunc(_ get_all.GetUserAllParams, principal interface{}) 
 }
 
 func GetV1UserUserIDHandlerFunc(params get_user_by_id.GetUserUserIDParams, principal interface{}) middleware.Responder {
-	l.Println(fmt.Sprintf("handling authorization for getting a user %s", principal))
+	log_utils.Trace("handling getting a user by id", principal)
 	user, _ := us.ReadUser(params.UserID)
 	if user == nil {
 		return get_user_by_id.NewGetUserUserIDNotFound()
@@ -56,7 +56,7 @@ func GetV1UserUserIDHandlerFunc(params get_user_by_id.GetUserUserIDParams, princ
 	return get_user_by_id.NewGetUserUserIDOK().WithPayload(res)
 }
 func PostV1UserHandlerFunc(params create_user.PostUserParams, principal interface{}) middleware.Responder {
-	l.Println(fmt.Sprintf("handling authorization for creating a user %s", principal))
+	log_utils.Trace("handling creating a user", principal)
 	u := &models.User{
 		Password: params.User.Password,
 		UserName: params.User.UserName,
@@ -76,7 +76,7 @@ func PostV1UserHandlerFunc(params create_user.PostUserParams, principal interfac
 }
 
 func PutUserUserIDHandlerFunc(params update_user_by_id.PutUserUserIDParams, principal interface{}) middleware.Responder {
-	l.Println(fmt.Sprintf("handling authorization for getting a user %s\n", principal))
+	log_utils.Trace("handling updating a user by id", principal)
 	user, _ := us.ReadUser(params.UserID)
 	if user == nil {
 		return update_user_by_id.NewPutUserUserIDNotFound()
@@ -93,7 +93,7 @@ func PutUserUserIDHandlerFunc(params update_user_by_id.PutUserUserIDParams, prin
 }
 
 func PutV1UserHandlerFunc(params update_user.PutUserParams, principal interface{}) middleware.Responder {
-	l.Println(fmt.Sprintf("handling authorization for updating a user %s\n", principal))
+	log_utils.Trace("handling updating a user", principal)
 	_ = us.UpdateUser(params.User)
 	return update_user.NewPutUserOK()
 }

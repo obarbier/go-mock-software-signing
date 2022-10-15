@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/go-openapi/errors"
+	"github.com/obarbier/custom-app/core/pkg/log_utils"
 	"github.com/obarbier/custom-app/core/pkg/models"
 	"github.com/obarbier/custom-app/core/pkg/restapi/operations"
 	"github.com/obarbier/custom-app/core/pkg/restapi/operations/create_user"
@@ -26,6 +27,8 @@ func NewAPI(api *operations.CoreAPI) error {
 		mysql2.SetCredentials("root", "rootpassword"),
 	}
 	sqlStorage, err := mysql2.NewMysqlStorage(cfg...)
+
+	api.Logger = log_utils.LogAny()
 	if err != nil {
 		l.Fatalf("Error: %s", err)
 	}
