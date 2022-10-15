@@ -73,7 +73,7 @@ func newLog() *logUtils {
 	var writers []io.Writer
 	writers = append(writers, zerolog.ConsoleWriter{Out: stout})
 	if s.LogFileOutput {
-		file, err := os.OpenFile(s.LogFile, os.O_RDWR|os.O_CREATE, 077)
+		file, err := os.OpenFile(s.LogFile, os.O_RDWR|os.O_CREATE, 0777)
 		if err != nil {
 			log.Fatalf("Error: %s", err)
 			os.Exit(1)
