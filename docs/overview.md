@@ -9,9 +9,9 @@ core :
 		swagger v2 specs
 	- requirements
 		authentication/authorization (V1-Done)
-		    - ACL based authorization (see policy acl)
+		    - ACL based authorization (see [policy acl](./policy_acl.md))
 		secure communication between services
-		    - implementation should follow security best practive
+		    - implementation should follow security best practice
 		        * input validation
 		        * https encryption
 		        * database security
