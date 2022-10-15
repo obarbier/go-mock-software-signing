@@ -2,15 +2,8 @@ using policy as our acl similar to vault implementation
 
 Users -(has)-> policies -(provide)-> (access)
 
-                     VS
-
-Users -(mapped to)-> policies -(provide)-> (access)
-
-    - user has is easier to implement as the user entity will contain it's policies. However multiple admin mean duplicated records
-    - user mapped require management of policy but 1 entity can be mapped to multiple user and provide same. However what happened
-            when conflicting policies is assigned to 1 user
-
 Policy Definition
+```
   [
         "user/*" : {
             capabilities : [ "create", "read","update", "delete"]
@@ -26,6 +19,8 @@ create  --> POST
 read    --> GET
 update  --> PUT
 delete  --> delete
+```
+
 
 some concerns:
     - how to do reconciliation on path variable i.e user/* as opposed to /user/:userid/list with different capabilities for example
