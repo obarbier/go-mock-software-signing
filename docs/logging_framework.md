@@ -38,3 +38,8 @@ Understand log level [LINK](https://sematext.com/blog/logging-levels/)
 TRACE -> DEBUG -> INFO -> WARN -> ERROR -> FATAL
 
 If you set your logging framework to have the root logging level to WARN you will only get log events with WARN, ERROR, and FATAL levels
+
+
+# Reference
+
+* https://www.dataset.com/blog/the-10-commandments-of-logging/
