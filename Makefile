@@ -33,13 +33,13 @@ generate-ssl-certificate:
 core-start-server:
 	- cd core;\
 	  export MYAPP_LOG_LEVEL=TRACE; \
-	  #export MYAPP_LOG_FILE_OUTPUT=true; \
+	  export MYAPP_LOG_FILE_OUTPUT=true; \
 	  $(GO)  run ./pkg/cmd/core-server/main.go \
 	  --port 8080
 
 .PHONY: core-stress-test
 core-stress-test:
-	- ab  -n 2 -c 2 -H 'Authorization: Basic b2JhcmJpZXI6Y2hhbmdlaXQ=' http://localhost:8080/api/v1/user/3 >> "./docs/benchmark_get_user_$(shell date +'%Y_%m_%d_%H-%M-%S').txt"
+	- ab  -n 1000 -c 20 -H 'Authorization: Basic b2JhcmJpZXI6Y2hhbmdlaXQ=' http://localhost:8080/api/v1/user/3 >> "./docs/benchmark_get_user_$(shell date +'%Y_%m_%d_%H-%M-%S').txt"
 
 
 
@@ -47,7 +47,6 @@ core-stress-test:
 core-format-project:
 	- cd core;\
 	  $(GO)  fmt ./
-
 
 
 .PHONY: all

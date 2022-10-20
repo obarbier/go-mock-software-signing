@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"github.com/go-openapi/errors"
 	"github.com/obarbier/custom-app/core/pkg/log_utils"
 	"github.com/obarbier/custom-app/core/pkg/models"
@@ -21,17 +22,18 @@ type Principal struct {
 }
 
 func NewAPI(api *operations.CoreAPI) error {
-	cfg := []mysql2.Configure{
-		mysql2.SetDBAddress("0.0.0.0:3306"),
-		mysql2.SetDBName("mydb"),
-		mysql2.SetCredentials("root", "rootpassword"),
+	cfg := []storage.Configure{
+		storage.SetDBAddress("0.0.0.0:3306"),
+		storage.SetDBName("mydb"),
+		storage.SetCredentials("root", "rootpassword"),
 	}
-	sqlStorage, err := mysql2.NewMysqlStorage(cfg...)
+	sqlStorage, err := mysql2.NewMysqlUserStorage(cfg...)
 
 	api.Logger = log_utils.LogAny()
 	if err != nil {
 		l.Fatalf("Error: %s", err)
 	}
+	policyCache = make(map[int64]*node)
 	us = storage.NewUserService(sqlStorage)
 	l = log.Default()
 	// Applies when the Authorization header is set with the Basic scheme
@@ -46,7 +48,7 @@ func NewAPI(api *operations.CoreAPI) error {
 			return p, nil
 		}
 		if AuthenticateUser(user, pass) {
-			u, err := us.FindByUserName(user)
+			u, err := us.FindByUserName(context.Background(), user)
 			if err != nil {
 				return nil, errors.New(401, "invalid username and or password")
 			}

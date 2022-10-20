@@ -25,6 +25,9 @@ type User struct {
 	// password
 	Password string `json:"password,omitempty"`
 
+	// policy
+	Policy Policy `json:"policy,omitempty"`
+
 	// user name
 	// Required: true
 	UserName *string `json:"user_name"`
@@ -34,6 +37,10 @@ type User struct {
 func (m *User) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validatePolicy(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUserName(formats); err != nil {
 		res = append(res, err)
 	}
@@ -41,6 +48,25 @@ func (m *User) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *User) validatePolicy(formats strfmt.Registry) error {
+	if swag.IsZero(m.Policy) { // not required
+		return nil
+	}
+
+	if m.Policy != nil {
+		if err := m.Policy.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("policy")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("policy")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -53,8 +79,31 @@ func (m *User) validateUserName(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this user based on context it is used
+// ContextValidate validate this user based on the context it is used
 func (m *User) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidatePolicy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *User) contextValidatePolicy(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Policy.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("policy")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("policy")
+		}
+		return err
+	}
+
 	return nil
 }
 

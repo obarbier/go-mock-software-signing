@@ -148,6 +148,51 @@ func (o *PostUserUnauthorized) WriteResponse(rw http.ResponseWriter, producer ru
 	}
 }
 
+// PostUserInternalServerErrorCode is the HTTP code returned for type PostUserInternalServerError
+const PostUserInternalServerErrorCode int = 500
+
+/*
+PostUserInternalServerError server error
+
+swagger:response postUserInternalServerError
+*/
+type PostUserInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *models.Error `json:"body,omitempty"`
+}
+
+// NewPostUserInternalServerError creates PostUserInternalServerError with default headers values
+func NewPostUserInternalServerError() *PostUserInternalServerError {
+
+	return &PostUserInternalServerError{}
+}
+
+// WithPayload adds the payload to the post user internal server error response
+func (o *PostUserInternalServerError) WithPayload(payload *models.Error) *PostUserInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the post user internal server error response
+func (o *PostUserInternalServerError) SetPayload(payload *models.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *PostUserInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(500)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 /*
 PostUserDefault error
 

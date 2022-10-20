@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"fmt"
 	"github.com/obarbier/custom-app/core/pkg/models"
 	"github.com/obarbier/custom-app/core/pkg/storage"
@@ -18,16 +19,16 @@ type UserStore struct {
 	mx sync.RWMutex
 }
 
-func (m *UserStore) CreatePolicy(i int64, policy *models.Policy) error {
+func (m *UserStore) CreatePolicy(_ context.Context, i int64, policy *models.Policy) error {
 	upm[i] = policy
 	return nil
 }
 
-func (m *UserStore) GetPolicy(i int64) (*models.Policy, error) {
+func (m *UserStore) GetPolicy(_ context.Context, i int64) (*models.Policy, error) {
 	return upm[i], nil
 }
 
-func (m *UserStore) FindByUserName(username string) (*models.User, error) {
+func (m *UserStore) FindByUserName(_ context.Context, username string) (*models.User, error) {
 	//TODO greedy implementation make easier by creating index
 	m.mx.Lock()
 	defer m.mx.Unlock()
@@ -41,7 +42,7 @@ func (m *UserStore) FindByUserName(username string) (*models.User, error) {
 	return nil, NotFoundError
 }
 
-func (m *UserStore) FindAllUser() ([]*models.User, error) {
+func (m *UserStore) FindAllUser(_ context.Context) ([]*models.User, error) {
 	m.mx.Lock()
 	defer m.mx.Unlock()
 	v := make([]*models.User, 0, len(us))
@@ -53,7 +54,7 @@ func (m *UserStore) FindAllUser() ([]*models.User, error) {
 	return v, nil
 }
 
-func (m *UserStore) CreateUser(user *models.User) (*models.User, error) {
+func (m *UserStore) CreateUser(_ context.Context, user *models.User) (*models.User, error) {
 	m.mx.Lock()
 	defer m.mx.Unlock()
 	user.ID = maxId
@@ -63,13 +64,13 @@ func (m *UserStore) CreateUser(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (m *UserStore) ReadUser(i int64) (*models.User, error) {
+func (m *UserStore) ReadUser(_ context.Context, i int64) (*models.User, error) {
 	m.mx.Lock()
 	defer m.mx.Unlock()
 	return us[i], nil
 }
 
-func (m *UserStore) UpdateUser(user *models.User) error {
+func (m *UserStore) UpdateUser(_ context.Context, user *models.User) error {
 	m.mx.Lock()
 	defer m.mx.Unlock()
 	// TODO(obarbier) check if i in us
@@ -77,7 +78,7 @@ func (m *UserStore) UpdateUser(user *models.User) error {
 	return nil
 }
 
-func (m *UserStore) DeleteUser(i int64) error {
+func (m *UserStore) DeleteUser(_ context.Context, i int64) error {
 	m.mx.Lock()
 	defer m.mx.Unlock()
 	// TODO(obarbier) check if i in us

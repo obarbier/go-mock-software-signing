@@ -113,6 +113,12 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
+          "500": {
+            "description": "server error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
           "default": {
             "description": "error",
             "schema": {
@@ -247,6 +253,12 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
+          "500": {
+            "description": "server error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
           "default": {
             "description": "error",
             "schema": {
@@ -334,6 +346,10 @@ func init() {
         },
         "password": {
           "type": "string"
+        },
+        "policy": {
+          "type": "object",
+          "$ref": "#/definitions/policy"
         },
         "user_name": {
           "type": "string"
@@ -503,6 +519,12 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
+          "500": {
+            "description": "server error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
           "default": {
             "description": "error",
             "schema": {
@@ -637,6 +659,12 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
+          "500": {
+            "description": "server error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
           "default": {
             "description": "error",
             "schema": {
@@ -735,6 +763,10 @@ func init() {
         },
         "password": {
           "type": "string"
+        },
+        "policy": {
+          "type": "object",
+          "$ref": "#/definitions/policy"
         },
         "user_name": {
           "type": "string"

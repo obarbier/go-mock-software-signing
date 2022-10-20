@@ -1,4 +1,4 @@
-package storage
+package api
 
 import "github.com/obarbier/custom-app/core/pkg/models"
 

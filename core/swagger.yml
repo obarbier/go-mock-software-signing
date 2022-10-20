@@ -64,6 +64,10 @@ paths:
           description: request body missing.
           schema:
             $ref: "#/definitions/error"
+        500:
+          description: server error
+          schema:
+            $ref: "#/definitions/error"
         default:
           description: error
           schema:
@@ -191,6 +195,10 @@ paths:
           description: A user with the specified ID was not found.
           schema:
             $ref: "#/definitions/error"
+        500:
+          description: server error
+          schema:
+            $ref: "#/definitions/error"
         default:
           description: error
           schema:
@@ -207,6 +215,9 @@ definitions:
         type: string
       password:
         type: string
+      policy:
+        type: object
+        $ref: "#/definitions/policy"
     required:
       - user_name
 

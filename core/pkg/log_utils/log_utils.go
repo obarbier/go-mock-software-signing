@@ -76,7 +76,6 @@ func newLog() *logUtils {
 		file, err := os.OpenFile(s.LogFile, os.O_RDWR|os.O_CREATE, 0777)
 		if err != nil {
 			log.Fatalf("Error: %s", err)
-			os.Exit(1)
 		}
 		// FIXME(obarbier): not writing to file
 		writers = append(writers, file)
@@ -91,35 +90,32 @@ func newLog() *logUtils {
 // Tace -.
 func Trace(message interface{}, args ...interface{}) {
 	// FIXME(obarbier): Fields is not working
-	l.logger.Trace().Fields(args).Msg(message.(string))
+	l.logger.Trace().Fields(getFields(args)).Msg(message.(string))
 }
 
 // Debug -.
 func Debug(message interface{}, args ...interface{}) {
-	l.logger.Debug().Fields(args).Msg(message.(string))
+	l.logger.Debug().Fields(getFields(args)).Msg(message.(string))
 }
 
 // Info -.
 func Info(message string, args ...interface{}) {
-	l.logger.Info().Fields(args).Msg(message)
+	l.logger.Info().Fields(getFields(args)).Msg(message)
 }
 
 // Warn -.
 func Warn(message string, args ...interface{}) {
-	l.logger.Warn().Fields(args).Msg(message)
+	l.logger.Warn().Fields(getFields(args)).Msg(message)
 }
 
 // Error -.
 func Error(message interface{}, args ...interface{}) {
-	if l.logger.GetLevel() == zerolog.DebugLevel {
-		l.logger.Debug().Fields(args).Msg(message.(string))
-	}
-	l.logger.Error().Fields(args).Msg(message.(string))
+	l.logger.Error().Fields(getFields(args)).Msg(message.(string))
 }
 
 // Fatal -.
 func Fatal(message interface{}, args ...interface{}) {
-	l.logger.Fatal().Fields(args).Msg(message.(string))
+	l.logger.Fatal().Fields(getFields(args)).Msg(message.(string))
 	os.Exit(1)
 }
 
@@ -127,4 +123,14 @@ func LogAny() func(string, ...interface{}) {
 	return func(s string, i ...interface{}) {
 		l.logger.Debug().Fields(i).Msg(fmt.Sprintf(s, i...))
 	}
+}
+
+func getFields(args []interface{}) map[string]interface{} {
+	fields := make(map[string]interface{})
+	id := 0
+	for _, ar := range args {
+		fields[fmt.Sprintf("entity-%d", id)] = ar
+		id++
+	}
+	return fields
 }
