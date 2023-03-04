@@ -335,6 +335,34 @@ func init() {
         }
       }
     },
+    "Key": {
+      "type": "object",
+      "required": [
+        "key_type"
+      ],
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "id": {
+          "type": "integer"
+        },
+        "key_type": {
+          "type": "string",
+          "$ref": "#/definitions/KeyType"
+        }
+      }
+    },
+    "KeyType": {
+      "type": "string",
+      "enum": [
+        "RSA_2048",
+        "RSA_4096"
+      ]
+    },
     "User": {
       "type": "object",
       "required": [
@@ -740,6 +768,34 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "Key": {
+      "type": "object",
+      "required": [
+        "key_type"
+      ],
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "id": {
+          "type": "integer"
+        },
+        "key_type": {
+          "type": "string",
+          "$ref": "#/definitions/KeyType"
+        }
+      }
+    },
+    "KeyType": {
+      "type": "string",
+      "enum": [
+        "RSA_2048",
+        "RSA_4096"
+      ]
     },
     "PolicyAnon": {
       "type": "object",

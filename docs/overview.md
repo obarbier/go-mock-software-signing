@@ -26,11 +26,20 @@ core :
     - fuzz testing
   - logging framework
     - ability to configure log output + set log level
-    - develop best practice for logging[research](./logging_framework.md)
+    - develop best practice for logging [research](./logging_framework.md)
   - key wrapping
 - API
   * /users
+    * basic user management 
   * /key
+    * keyring system (similar to https://github.com/jaraco/keyring but for certificate and crypto key)
+      * set_keyring 
+      * get_keyring
+      * disable_key
+      * get_key
+      * create_key
+      * rotate_key
+      * access manage by /user management (hmac authentication)
 
 SIGN-DATA
 - 

@@ -276,3 +276,24 @@ definitions:
       - read
       - update
       - delete
+
+  Key:
+    type: object
+    properties:
+      id:
+        type: integer
+      key_type:
+        type: string
+        $ref: "#/definitions/KeyType"
+      data:
+        type: object
+        additionalProperties:
+          type: object
+    required:
+      - key_type
+
+  KeyType:
+    type: string
+    enum:
+      - RSA_2048
+      - RSA_4096
